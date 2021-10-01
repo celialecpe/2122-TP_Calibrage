@@ -14,7 +14,8 @@ mire1 = cv2.imread('./capture_mire_1.png')
 #Parameters
 nbInterX = 7
 nbInterY = 7
-nbInterTot = nbInterX*nbInterY
+nbInter1mat = nbInterX*nbInterY
+nbInterTot = nbInter1mat*2
 ################################
 
 #Intersection detection
@@ -32,25 +33,25 @@ for i in range(len(coord_px1)):
 #Creation of coord_px
 coord_px = np.zeros([nbInterTot,2])
 for i in range(nbInterTot):
-    if i < nbInterTot/2 :
+    if i < nbInter1mat :
         coord_px[i][0] = coord_px0[i][0][1]
         coord_px[i][1] = coord_px0[i][0][0]
     else :
-        coord_px[i][0] = coord_px1[i-nbInterTot/2][0][1]
-        coord_px[i][1] = coord_px1[i-nbInterTot/2][0][0]
+        coord_px[i][0] = coord_px1[i-nbInter1mat][0][1]
+        coord_px[i][1] = coord_px1[i-nbInter1mat][0][0]
 ################################
 
 #Creation of coord_mm
 coord_mm = np.zeros([nbInterTot,3])
 delta_z = -120
 for i in range(nbInterTot):
-    if i<nbInterTot/2:
+    if i<nbInter1mat:
         x = i//7 * 20
         y = i%7 * 20
         coord_mm[i] = [x, y, 0]
     else:
-        x = (i-nbInterTot/2)//7 * 20
-        y = (i-nbInterTot/2)%7 * 20
+        x = (i-nbInter1mat)//7 * 20
+        y = (i-nbInter1mat)%7 * 20
         coord_mm[i] = [x, y, delta_z]
 ################################
 
