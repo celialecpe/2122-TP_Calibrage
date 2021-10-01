@@ -10,20 +10,26 @@ cap = cv2.VideoCapture(0)
 
 mire0 = cv2.imread('./capture_mire_0.png')
 mire1 = cv2.imread('./capture_mire_1.png')
-# cv2.imshow('mire0',mire0)
-# cv2.imshow('mire1',mire1)
+
+#Parameters
 nbInterX = 7
 nbInterY = 7
+nbInterTot = nbInterX*nbInterY
+################################
+
+#Intersection detection
 found_0, coord_px0 = cv2.findChessboardCorners(mire0,(nbInterX,nbInterY))
 found_1, coord_px1 = cv2.findChessboardCorners(mire1,(nbInterX,nbInterY))
-nbInterTot = nbInterX*nbInterY
+################################
 
+#Intersection display
 for i in range(len(coord_px0)):
     mire0[int(coord_px0[i][0][1])-5:int(coord_px0[i][0][1])+5,int(coord_px0[i][0][0])-5:int(coord_px0[i][0][0])+5] = [255,0,0]
-
 for i in range(len(coord_px1)):
     mire1[int(coord_px1[i][0][1])-5:int(coord_px1[i][0][1])+5,int(coord_px1[i][0][0])-5:int(coord_px1[i][0][0])+5] = [255,0,0]
+################################
 
+#Creation of coord_px
 coord_px = np.zeros([nbInterTot,2])
 for i in range(nbInterTot):
     if i < nbInterTot/2 :
@@ -32,7 +38,9 @@ for i in range(nbInterTot):
     else :
         coord_px[i][0] = coord_px1[i-nbInterTot/2][0][1]
         coord_px[i][1] = coord_px1[i-nbInterTot/2][0][0]
+################################
 
+#Creation of coord_mm
 coord_mm = np.zeros([nbInterTot,3])
 delta_z = -120
 for i in range(nbInterTot):
@@ -44,19 +52,12 @@ for i in range(nbInterTot):
         x = (i-nbInterTot/2)//7 * 20
         y = (i-nbInterTot/2)%7 * 20
         coord_mm[i] = [x, y, delta_z]
-    # coord_mm[i][0][1] = i/7 * 20
-    # coord_mm[i][0][2] = 0
-
-    # coord_mm[i+49][0][0] = i%7 * 20
-    # coord_mm[i+49][0][1] = i/7 * 20
-    # coord_mm[i+49][0][2] = delta_z
+################################
 
 
 # print(coord_px)
 print(coord_mm)
 
-
-# print(coord_px0)
 
 while(True):
     # ret, frame = cap.read() #1 frame acquise à chaque iteration
