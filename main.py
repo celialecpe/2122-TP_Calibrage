@@ -55,10 +55,96 @@ for i in range(nbInterTot):
         coord_mm[i] = [x, y, delta_z]
 ################################
 
-
-# print(coord_px)
+print(coord_px)
 print(coord_mm)
 
+#Tsai method
+i1, i2 = mire0.shape[:-1]
+
+coord_px_tilde = np.zeros([nbInterTot,2])
+for i in range(nbInterTot):
+    coord_px_tilde[i][0] = int(coord_px[i][0]) - i1
+    coord_px_tilde[i][1] = int(coord_px[i][1]) - i2
+
+U1 = np.zeros((nbInterTot, 1))
+for i in range(nbInterTot):
+    U1[i] = coord_px_tilde[i][0]
+
+A = np.zeros((nbInterTot, 7))
+for i in range(nbInterTot):
+    A[i] = [coord_px_tilde[i][1]*coord_mm[i][0], coord_px_tilde[i][1]*coord_mm[i][1],coord_px_tilde[i][1]*coord_mm[i][2],
+            coord_px_tilde[i][1],
+            -coord_px_tilde[i][0]*coord_mm[i][0], -coord_px_tilde[i][0]*coord_mm[i][1], -coord_px_tilde[i][0]*coord_mm[i][2]]
+
+L = np.dot(np.linalg.pinv(A), U1)
+print(L)
+
+norme_oc2 = 1 / (np.sqrt(L[4]*L[4] + L[5]*L[5] + L[6]*L[6]))
+beta = norme_oc2 * np.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2])
+oc1 = L[3] * norme_oc2 / beta
+oc2 = -norme_oc2
+r11 = L[0] * oc2 / beta
+r12 = L[1] * oc2 / beta
+r13 = L[2] * oc2 / beta
+r21 = L[4] * oc2
+r22 = L[5] * oc2
+r23 = L[6] * oc2
+
+colonne3 = np.cross(np.transpose(np.array([r11,r12,r13])),
+                    np.transpose(np.array([r21,r22,r23])))
+print(colonne3)
+r31 = colonne3[0][0]
+r32 = colonne3[0][1]
+r33 = colonne3[0][2]
+phi = -np.arctan(r23/r33)
+gamma = -np.arctan(r12/r11)
+omega = np.arctan(r13/(-r23*np.sin(phi)+r33*np.cos(phi)))
+
+print(phi,gamma,omega)
+
+B = np.zeros((nbInterTot, 2))
+for i in range(nbInterTot):
+    B[i][0] = coord_px_tilde[i][1]
+    B[i][1] = -(r21*coord_mm[i][0] + r22*coord_mm[i][1] + r23*coord_mm[i][2] + oc2)
+
+R = np.zeros((nbInterTot, 1))
+for i in range(nbInterTot):
+    R[i] = -coord_px_tilde[i][1] * (r31*coord_mm[i][0] + r32*coord_mm[i][1] + r33*coord_mm[i][2])
+
+M = np.dot(np.linalg.pinv(B), R)
+
+print("M")
+print(M)
+
+oc3 = M[0]
+f2 = M[1]
+f = 4 #mm
+f1 = beta * f2
+
+s2 = f/f2
+s1 = f/f1
+
+
+
+print("")
+print("beta :", beta)
+print("oc1 :", oc1)
+print("oc2 :", oc2)
+print("oc3 :", oc3)
+print("r11 :", r11)
+print("r12 :", r12)
+print("r13 :", r13)
+print("r21 :", r21)
+print("r22 :", r22)
+print("r23 :", r23)
+print("r31 :", r31)
+print("r32 :", r32)
+print("r33 :", r33)
+print("f :", f)
+print("s1 :", s1)
+print("s2 :", s2)
+
+print(phi/3.14*180, gamma/3.14*180, omega/3.14*180)
 
 while(True):
     # ret, frame = cap.read() #1 frame acquise à chaque iteration
