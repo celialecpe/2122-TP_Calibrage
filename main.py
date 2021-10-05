@@ -25,8 +25,11 @@ found_1, coord_px1 = cv2.findChessboardCorners(mire1,(nbInterX,nbInterY))
 ################################
 
 #Intersection display
-for i in range(len(coord_px0)):
-    mire0[int(coord_px0[i][0][1])-5:int(coord_px0[i][0][1])+5,int(coord_px0[i][0][0])-5:int(coord_px0[i][0][0])+5] = [255,0,0]
+def add_square(im, u1, u2, c, w=5):
+    im[int(u1)-w:int(u1)+w,int(u2)-w:int(u2)+w] = c
+
+# for i in range(len(coord_px0)):
+#     mire0[int(coord_px0[i][0][1])-5:int(coord_px0[i][0][1])+5,int(coord_px0[i][0][0])-5:int(coord_px0[i][0][0])+5] = [255,0,0]
 for i in range(len(coord_px1)):
     mire1[int(coord_px1[i][0][1])-5:int(coord_px1[i][0][1])+5,int(coord_px1[i][0][0])-5:int(coord_px1[i][0][0])+5] = [255,0,0]
 ################################
@@ -35,11 +38,22 @@ for i in range(len(coord_px1)):
 coord_px = np.zeros([nbInterTot,2])
 for i in range(nbInterTot):
     if i < nbInter1mat :
+        #notre repère
         coord_px[i][0] = int(coord_px0[i][0][1])
         coord_px[i][1] = int(coord_px0[i][0][0])
+        
+
+        # #Leur repere
+        # coord_px[i][0] = int(coord_px0[i][0][0])
+        # coord_px[i][1] = int(coord_px0[i][0][1])
     else :
+        #notre repère
         coord_px[i][0] = int(coord_px1[i-nbInter1mat][0][1])
         coord_px[i][1] = int(coord_px1[i-nbInter1mat][0][0])
+
+        # #leur repère
+        # coord_px[i][0] = int(coord_px1[i-nbInter1mat][0][0])
+        # coord_px[i][1] = int(coord_px1[i-nbInter1mat][0][1])
 
 ################################
 
@@ -49,20 +63,38 @@ coord_mm = np.zeros([nbInterTot,3])
 delta_z = -120
 for i in range(nbInterTot):
     if i<nbInter1mat:
+        #Notre repere
         x = i//7 * 20
         y = i%7 * 20
+
+        # #Leur repere
+        # y = i//7 * 20
+        # x = i%7 * 20
+
+        
         coord_mm[i] = [x, y, 0]
     else:
+        #notre repere
         x = (i-nbInter1mat)//7 * 20
         y = (i-nbInter1mat)%7 * 20
         coord_mm[i] = [x, y, delta_z]
+
+        # #Leur repere
+        # y = (i-nbInter1mat)//7 * 20
+        # x = (i-nbInter1mat)%7 * 20
+        # coord_mm[i] = [x, y, -delta_z]
 ################################
 
 #Tsai method
+#Notre repere
 i1, i2 = mire0.shape[:-1]
 i1 = i1/2
 i2 = i2/2
 
+#Leur repere
+# i2, i1 = mire0.shape[:-1]
+# i2 = i2/2
+# i1 = i1/2
 
 u_tilde = np.zeros([nbInterTot,2])
 for i in range(nbInterTot):
@@ -145,17 +177,49 @@ print("s2 :", s2)
 
 print(phi/3.14*180, gamma/3.14*180, omega/3.14*180)
 
-# while(True):
-#     # ret, frame = cap.read() #1 frame acquise à chaque iteration
-#     # cv2.imshow('Capture_Video', frame) #affichage
+# Projecton
+Mint = np.array([[f1, 0, i1, 0],
+                 [0, f2, i2, 0], 
+                 [0, 0, 1, 0]])
+Mext = np.array([[r11, r12, r13, oc1], 
+                 [r21, r22, r23, oc2],
+                 [r31, r32, r33, oc3],
+                 [0, 0, 0, 1]])
 
-#     cv2.imshow('mire0',mire0)
-#     plt.show()
+M = np.dot(Mint, Mext)
 
-#     key = cv2.waitKey(1) #on évalue la touche pressée
-#     if key & 0xFF == ord('q'): #si appui sur 'q'
-#         break #sortie de la boucle while
+print("Mint :", Mint.shape)
+print("Mext :", Mext.shape)
+print("M :", M.shape)
+
+# x = np.array([coord_mm[1][0], coord_mm[1][1], coord_mm[1][2], 1])
+for i in range(nbInter1mat):
+    x = np.array([coord_mm[i][0], coord_mm[i][1], coord_mm[i][2], 1])
+    u = np.dot(M, x)
+
+    print(u)
+    u1 = u[0]/u[2]
+    u2 = u[1]/u[2]
+
+    print(u1, u2)
+    print(coord_mm[i], coord_px[i])
 
 
-# cap.release()
-# cv2.destroyAllWindows()
+    add_square(mire0, u1, u2, [0, 255, 0])
+
+
+
+while(True):
+    # ret, frame = cap.read() #1 frame acquise à chaque iteration
+    # cv2.imshow('Capture_Video', frame) #affichage
+
+    cv2.imshow('mire0',mire0)
+    plt.show()
+
+    key = cv2.waitKey(1) #on évalue la touche pressée
+    if key & 0xFF == ord('q'): #si appui sur 'q'
+        break #sortie de la boucle while
+
+
+
+cv2.destroyAllWindows()
