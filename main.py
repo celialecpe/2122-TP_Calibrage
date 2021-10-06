@@ -226,6 +226,20 @@ for i in range(nbInter1mat):
 
     add_square(mire0, u[0], u[1], [0, 255, 0])
 
+for i in range(nbInter1mat): 
+    x = np.array([coord_mm[i+nbInter1mat][0],
+                  coord_mm[i+nbInter1mat][1],
+                  coord_mm[i+nbInter1mat][2],
+                  1]) # world coordinate
+
+    # pixel coordinate
+    alpha_u = np.dot(M, x)
+    u = np.array([float(alpha_u[0]/alpha_u[2]), float(alpha_u[1]/alpha_u[2])])
+
+    print("World coordinates :", x[:-1], "| Pixel coordinates :", u)
+
+    add_square(mire1, u[0], u[1], [0, 255, 0])
+
 
 #%% Image display
 while(True):
