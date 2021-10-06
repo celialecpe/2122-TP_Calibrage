@@ -2,8 +2,16 @@
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
+import argparse
 
-#%% Paramater declaration & intersection detection
+#%% Parser
+parser = argparse.ArgumentParser(description='Camera calibration')
+parser.add_argument('-d','--display', action='store_true',
+                    help='Display the image')
+parser.add_argument('-r', '--reference', type=str, default='1',
+                    help='Choose the reference frame (1 or 2, default = 1)')
+
+args = parser.parse_args()
 
 # Parameters and image reading
 mire0 = cv2.imread('./capture_mire_0.png')
@@ -33,64 +41,65 @@ for i in range(len(coord_px1)):
 coord_px = np.zeros([nbInterTot,2])
 for i in range(nbInterTot):
     if i < nbInter1mat :
-        #notre repère
-        coord_px[i][0] = int(coord_px0[i][0][1])
-        coord_px[i][1] = int(coord_px0[i][0][0])
+        if args.reference == '1' : # repere 1
+            coord_px[i][0] = int(coord_px0[i][0][1])
+            coord_px[i][1] = int(coord_px0[i][0][0])
         
-
-        # #Leur repere
-        # coord_px[i][0] = int(coord_px0[i][0][0])
-        # coord_px[i][1] = int(coord_px0[i][0][1])
+        elif args.reference == '2' : # repere 2
+            coord_px[i][0] = int(coord_px0[i][0][0])
+            coord_px[i][1] = int(coord_px0[i][0][1])
     else :
-        #notre repère
-        coord_px[i][0] = int(coord_px1[i-nbInter1mat][0][1])
-        coord_px[i][1] = int(coord_px1[i-nbInter1mat][0][0])
+        if args.reference == '1' : # repere 1
+            coord_px[i][0] = int(coord_px1[i-nbInter1mat][0][1])
+            coord_px[i][1] = int(coord_px1[i-nbInter1mat][0][0])
 
-        # #leur repère
-        # coord_px[i][0] = int(coord_px1[i-nbInter1mat][0][0])
-        # coord_px[i][1] = int(coord_px1[i-nbInter1mat][0][1])
+        elif args.reference == '2' : # repere 2
+            coord_px[i][0] = int(coord_px1[i-nbInter1mat][0][0])
+            coord_px[i][1] = int(coord_px1[i-nbInter1mat][0][1])
 
 
 # Creation of coord_mm (world coordinate in mm)
 coord_mm = np.zeros([nbInterTot,3])
-delta_z = -120
+if args.reference == '1' : # repere 1
+    delta_z = -120
+elif args.reference == '2' : # repere 2
+    delta_z = 120
+
 for i in range(nbInterTot):
     if i<nbInter1mat:
-        #Notre repere
-        x = i//7 * 20
-        y = i%7 * 20
-
-        # #Leur repere
-        # y = i//7 * 20
-        # x = i%7 * 20
+        if args.reference == '1' : # repere 1
+            x = i//7 * 20
+            y = i%7 * 20
+        
+        elif args.reference == '2' : # repere 2
+            y = i//7 * 20
+            x = i%7 * 20
 
 
         coord_mm[i] = [x, y, 0]
     else:
-        #notre repere
-        x = (i-nbInter1mat)//7 * 20
-        y = (i-nbInter1mat)%7 * 20
-        coord_mm[i] = [x, y, delta_z]
+        if args.reference == '1' : # repere 1
+            x = (i-nbInter1mat)//7 * 20
+            y = (i-nbInter1mat)%7 * 20
 
-        # #Leur repere
-        # y = (i-nbInter1mat)//7 * 20
-        # x = (i-nbInter1mat)%7 * 20
-        # coord_mm[i] = [x, y, -delta_z]
+        elif args.reference == '2' : # repere 2
+            y = (i-nbInter1mat)//7 * 20
+            x = (i-nbInter1mat)%7 * 20
+        coord_mm[i] = [x, y, delta_z]
 
 #%% Tsai method
 
 ### STEP 1 : Solving AL = U1 ###
 
 # Image center
-#Notre repere
-i1, i2 = mire0.shape[:-1]
-i1 = i1/2
-i2 = i2/2
-
-#Leur repere
-# i2, i1 = mire0.shape[:-1]
-# i2 = i2/2
-# i1 = i1/2
+if args.reference == '1' : # repere 1
+    i1, i2 = mire0.shape[:-1]
+    i1 = i1/2
+    i2 = i2/2
+elif args.reference == '2' : # repere 2
+    i2, i1 = mire0.shape[:-1]
+    i2 = i2/2
+    i1 = i1/2
 
 u_tilde = np.zeros([nbInterTot,2])
 for i in range(nbInterTot):
@@ -242,16 +251,17 @@ for i in range(nbInter1mat):
 
 
 #%% Image display
-while(True):
-    cv2.imshow('mire0',mire0)
-    cv2.imshow('mire1',mire1)
-    plt.show()
+if args.display:
+    while(True):
+        cv2.imshow('mire0',mire0)
+        cv2.imshow('mire1',mire1)
+        plt.show()
 
-    key = cv2.waitKey(1) #on évalue la touche pressée
-    if key & 0xFF == ord('q'): #si appui sur 'q'
-        break #sortie de la boucle while
+        key = cv2.waitKey(1) #on évalue la touche pressée
+        if key & 0xFF == ord('q'): #si appui sur 'q'
+            break #sortie de la boucle while
 
-cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
 
 #%% cv2.CalibrateCamera
 print(coord_mm.shape)
