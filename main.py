@@ -115,31 +115,31 @@ L = np.dot(np.linalg.pinv(A), U1)
 # Computing some intrinsect and extrasect parameters 
 abs_oc2 = 1 / (np.sqrt(L[4]*L[4] + L[5]*L[5] + L[6]*L[6]))
 
-beta = abs_oc2 * np.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2]) # beta = f1/f2 = s2:s1
+beta = float(abs_oc2 * np.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2])) # beta = f1/f2 = s2:s1
 
 # 2 first coordinates of the world coordinate system's origin
-oc2 = -abs_oc2
-oc1 = L[3] * oc2 / beta
+oc2 = float(-abs_oc2)
+oc1 = float(L[3] * oc2 / beta)
 
 # Rotation matrix
-r11 = L[0] * oc2 / beta
-r12 = L[1] * oc2 / beta
-r13 = L[2] * oc2 / beta
-r21 = L[4] * oc2
-r22 = L[5] * oc2
-r23 = L[6] * oc2
+r11 = float(L[0] * oc2 / beta)
+r12 = float(L[1] * oc2 / beta)
+r13 = float(L[2] * oc2 / beta)
+r21 = float(L[4] * oc2)
+r22 = float(L[5] * oc2)
+r23 = float(L[6] * oc2)
 
 # Last line of rotation matrix by the cross product of the two first lines
 ligne3 = np.cross(np.transpose(np.array([r11,r12,r13])),
                     np.transpose(np.array([r21,r22,r23])))
-r31 = ligne3[0][0]
-r32 = ligne3[0][1]
-r33 = ligne3[0][2]
+r31 = ligne3[0]
+r32 = ligne3[1]
+r33 = ligne3[2]
 
 # Rotation angles (in rad)
-phi = -np.arctan(r23/r33)
-gamma = -np.arctan(r12/r11)
-omega = np.arctan(r13/(-r23*np.sin(phi)+r33*np.cos(phi)))
+phi = float(-np.arctan(r23/r33))
+gamma = float(-np.arctan(r12/r11))
+omega = float(np.arctan(r13/(-r23*np.sin(phi)+r33*np.cos(phi))))
 
 ### STEP 2 : Solving BM = R ###
 
@@ -159,21 +159,33 @@ M = np.dot(np.linalg.pinv(B), R)
 
 # Computing the remaining intrinsect and extrasect parameters 
 
-oc3 = M[0] # Last coordinate
+oc3 = float(M[0]) # Last coordinate
 
-f2 = M[1]
+f2 = float(M[1])
 f1 = beta * f2
 
 # Pixel dimension
-s2 = f/f2
 s1 = f/f1
+s2 = f/f2
 
+#%% Printing intrinsect and extrasect parameters
 
-print("")
-print("beta :", beta)
+print("------INTRINSECT PARAMETERS------")
+print("focal (in mm) :", f)
+
+print("\nPIXEL DIMENSION")
+print("beta (s2/s1):", beta)
+print("s1 :", s1)
+print("s2 :", s2)
+
+print("\n------EXTRINSECT PARAMETERS------")
+
+print("\nWORLD COORDINATE SYSTEM ORIGIN")
 print("oc1 :", oc1)
 print("oc2 :", oc2)
 print("oc3 :", oc3)
+
+print("\nROTATION MATRIX")
 print("r11 :", r11)
 print("r12 :", r12)
 print("r13 :", r13)
@@ -183,11 +195,10 @@ print("r23 :", r23)
 print("r31 :", r31)
 print("r32 :", r32)
 print("r33 :", r33)
-print("f :", f)
-print("s1 :", s1)
-print("s2 :", s2)
 
-print(phi/3.14*180, gamma/3.14*180, omega/3.14*180)
+print("\nphi (in deg):", phi/3.14*180)
+print("gamma (in deg):", gamma/3.14*180)
+print("omega (in deg):", omega/3.14*180)
 
 #%% Projecton
 
@@ -206,14 +217,15 @@ Mext = np.array([[r11, r12, r13, oc1],
 M = np.dot(Mint, Mext)
 
 # Projecting world coordinate to pixel coordinate
+print("\nProjection")
 for i in range(nbInter1mat): 
     x = np.array([coord_mm[i][0], coord_mm[i][1], coord_mm[i][2], 1]) # world coordinate
 
     # pixel coordinate
     alpha_u = np.dot(M, x)
-    u = np.array([alpha_u[0]/alpha_u[2], alpha_u[1]/alpha_u[2]])
+    u = np.array([float(alpha_u[0]/alpha_u[2]), float(alpha_u[1]/alpha_u[2])])
 
-    print("World coordinates :", x, "| Pixel coordinates :", u)
+    print("World coordinates :", x[:-1], "| Pixel coordinates :", u)
 
     add_square(mire0, u[0], u[1], [0, 255, 0])
 
