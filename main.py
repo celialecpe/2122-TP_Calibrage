@@ -28,10 +28,10 @@ found_1, coord_px1 = cv2.findChessboardCorners(mire1,(nbInterX,nbInterY))
 def add_square(im, u1, u2, c, w=5):
     im[int(u1)-w:int(u1)+w,int(u2)-w:int(u2)+w] = c
 
-# for i in range(len(coord_px0)):
-#     mire0[int(coord_px0[i][0][1])-5:int(coord_px0[i][0][1])+5,int(coord_px0[i][0][0])-5:int(coord_px0[i][0][0])+5] = [255,0,0]
+for i in range(len(coord_px0)):
+    add_square(mire0, coord_px0[i][0][1], coord_px0[i][0][0], [255,0,0], w=5)
 for i in range(len(coord_px1)):
-    mire1[int(coord_px1[i][0][1])-5:int(coord_px1[i][0][1])+5,int(coord_px1[i][0][0])-5:int(coord_px1[i][0][0])+5] = [255,0,0]
+    add_square(mire1, coord_px1[i][0][1], coord_px1[i][0][0], [255,0,0], w=5)
 ################################
 
 #Creation of coord_px
@@ -71,7 +71,7 @@ for i in range(nbInterTot):
         # y = i//7 * 20
         # x = i%7 * 20
 
-        
+
         coord_mm[i] = [x, y, 0]
     else:
         #notre repere
