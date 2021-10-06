@@ -186,15 +186,9 @@ print("oc2 :", oc2)
 print("oc3 :", oc3)
 
 print("\nROTATION MATRIX")
-print("r11 :", r11)
-print("r12 :", r12)
-print("r13 :", r13)
-print("r21 :", r21)
-print("r22 :", r22)
-print("r23 :", r23)
-print("r31 :", r31)
-print("r32 :", r32)
-print("r33 :", r33)
+print("r11 :", r11, ", r12 :", r12, ", r13 :", r13)
+print("r21 :", r21, ", r22 :", r22, ", r23 :", r23)
+print("r31 :", r31, ", r32 :", r32, ", r33 :", r33)
 
 print("\nphi (in deg):", phi/3.14*180)
 print("gamma (in deg):", gamma/3.14*180)
@@ -219,7 +213,10 @@ M = np.dot(Mint, Mext)
 # Projecting world coordinate to pixel coordinate
 print("\nProjection")
 for i in range(nbInter1mat): 
-    x = np.array([coord_mm[i][0], coord_mm[i][1], coord_mm[i][2], 1]) # world coordinate
+    x = np.array([coord_mm[i][0],
+                  coord_mm[i][1],
+                  coord_mm[i][2],
+                  1]) # world coordinate
 
     # pixel coordinate
     alpha_u = np.dot(M, x)
