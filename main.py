@@ -252,3 +252,9 @@ while(True):
         break #sortie de la boucle while
 
 cv2.destroyAllWindows()
+
+#%% cv2.CalibrateCamera
+print(coord_mm.shape)
+ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(coord_mm, coord_px, mire0.shape[:-1], None, None)
+
+print(rvecs, tvecs)
