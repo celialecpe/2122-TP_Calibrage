@@ -14,8 +14,8 @@ parser.add_argument('-r', '--reference', type=str, default='1',
 args = parser.parse_args()
 
 # Parameters and image reading
-mire0 = cv2.imread('./capture_mire_0.png')
-mire1 = cv2.imread('./capture_mire_1.png')
+mire0 = cv2.imread('./figure/capture_mire_0.png')
+mire1 = cv2.imread('./figure/capture_mire_1.png')
 
 nbInterX = 7
 nbInterY = 7
