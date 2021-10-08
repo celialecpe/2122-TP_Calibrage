@@ -89,7 +89,7 @@ for i in range(nbInterTot):
 
 #%% Tsai method
 
-### STEP 1 : Solving AL = U1 ###
+### STEP 1: Solving AL = U1 ###
 
 # Image center
 if args.reference == '1' : # repere 1
@@ -121,7 +121,7 @@ for i in range(nbInterTot):
 # Solution : L vector (Nx1)
 L = np.dot(np.linalg.pinv(A), U1)
 
-# Computing some intrinsect and extrasect parameters 
+### STEP 2: Computing some intrinsect and extrasect parameters ###
 abs_oc2 = 1 / (np.sqrt(L[4]*L[4] + L[5]*L[5] + L[6]*L[6]))
 
 beta = float(abs_oc2 * np.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2])) # beta = f1/f2 = s2:s1
@@ -150,7 +150,7 @@ phi = float(-np.arctan(r23/r33))
 gamma = float(-np.arctan(r12/r11))
 omega = float(np.arctan(r13/(-r23*np.sin(phi)+r33*np.cos(phi))))
 
-### STEP 2 : Solving BM = R ###
+### STEP 3: Solving BM = R ###
 
 # B matrix (Nx2)
 B = np.zeros((nbInterTot, 2))
